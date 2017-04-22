@@ -25,7 +25,7 @@
 
 + (NSInteger) bestScore
 {
-    return [[NSUserDefaults standardUserDefaults] integerForKey:kBestScoreKey];
+   return [[NSUserDefaults standardUserDefaults] integerForKey:kBestScoreKey];
 }
 
 @end

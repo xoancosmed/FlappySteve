@@ -3,7 +3,7 @@
 //  spritybird
 //
 //  Created by Alexis Creuzot on 09/02/2014.
-//  Copyright (c) 2014 Alexis Creuzot. All rights reserved.
+//  Copyright (c) 2014 Alexis Creuzot & Xoan Cosmed. All rights reserved.
 //
 
 #import "ViewController.h"
@@ -19,6 +19,9 @@
 @property (weak,nonatomic) IBOutlet UILabel * currentScore;
 @property (weak,nonatomic) IBOutlet UILabel * bestScoreLabel;
 
+
+@property (nonatomic, strong) IBOutlet UILabel *text;
+
 @end
 
 @implementation ViewController
@@ -27,25 +30,41 @@
     UIView * flash;
 }
 
+-(void)bannerViewDidLoadAd:(ADBannerView *)banner {
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:1];
+    [banner setAlpha:1];
+    [UIView commitAnimations];
+}
+
+- (void)bannerView:(ADBannerView *)
+banner didFailToReceiveAdWithError:(NSError *)error
+{
+    [UIView beginAnimations:nil context:NULL];
+    [UIView setAnimationDuration:1];
+    [banner setAlpha:0];
+    [UIView commitAnimations];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
-    
+
 	// Configure the view.
     //self.gameView.showsFPS = YES;
     //self.gameView.showsNodeCount = YES;
-    
+
     // Create and configure the scene.
     scene = [Scene sceneWithSize:self.gameView.bounds.size];
     scene.scaleMode = SKSceneScaleModeAspectFill;
     scene.delegate = self;
-    
+
     // Present the scene
     self.gameOverView.alpha = 0;
     self.gameOverView.transform = CGAffineTransformMakeScale(.9, .9);
     [self.gameView presentScene:scene];
-    
+
 }
 
 
@@ -62,6 +81,7 @@
         self.gameOverView.alpha = 0;
         self.gameOverView.transform = CGAffineTransformMakeScale(.8, .8);
         flash.alpha = 0;
+        self.text.alpha = 0;
         self.getReadyView.alpha = 1;
     } completion:^(BOOL finished) {
         [flash removeFromSuperview];
@@ -73,25 +93,27 @@
 {
     [UIView animateWithDuration:.5 animations:^{
         self.getReadyView.alpha = 0;
+        self.text.alpha = 0;
     }];
 }
 
 - (void)eventWasted
 {
+
     flash = [[UIView alloc] initWithFrame:self.view.frame];
     flash.backgroundColor = [UIColor whiteColor];
     flash.alpha = .9;
     [self.gameView insertSubview:flash belowSubview:self.getReadyView];
-    
+
     [self shakeFrame];
-    
+
     [UIView animateWithDuration:.6 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
-        
+
         // Display game over
         flash.alpha = .4;
         self.gameOverView.alpha = 1;
         self.gameOverView.transform = CGAffineTransformMakeScale(1, 1);
-        
+
         // Set medal
         if(scene.score >= 40){
             self.medalImageView.image = [UIImage imageNamed:@"medal_platinum"];
@@ -104,15 +126,15 @@
         }else{
             self.medalImageView.image = nil;
         }
-        
+
         // Set scores
         self.currentScore.text = F(@"%li",scene.score);
         self.bestScoreLabel.text = F(@"%li",(long)[Score bestScore]);
-        
+
     } completion:^(BOOL finished) {
         flash.userInteractionEnabled = NO;
     }];
-    
+
 }
 
 - (void) shakeFrame
